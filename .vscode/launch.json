@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}\\bin\\index.js",
+            "program": "${workspaceRoot}\\bin\\server.js",
             "cwd": "${workspaceRoot}"
         },
         {
