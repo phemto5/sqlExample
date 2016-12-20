@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "outDir": "./bin/",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es5",
+        "removeComments": true,
+        "jsx": "react"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+    // "files": [
+    //     "./src/index.tsx"
+    //     // ,
+    //     // "./src/Entry.tsx",
+    //     // "./src/LogData.tsx",
+    //     // "./src/swLicence.Service.tsx",
+    //     // "./src/swLicence.Service.totals.tsx"
+    // ]
+}

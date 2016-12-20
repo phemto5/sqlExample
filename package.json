@@ -1,0 +1,39 @@
+{
+  "name": "solidworkslicdata",
+  "version": "1.0.0",
+  "description": "Application that will capture and analyze licence data",
+  "main": "./bin/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://wagsafe.wagstaff.com/GIT/SolidworksLicData.git"
+  },
+  "keywords": [
+    "Solidworks",
+    "licence"
+  ],
+  "author": "Nicholas Anderson",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/mssql": "^3.1.29",
+    "@types/node": "^6.0.46",
+    "@types/promise": "^7.1.30",
+    "@types/restify": "^2.0.34",
+    "crypto": "0.0.3",
+    "ignore-loader": "^0.1.2",
+    "json-loader": "^0.5.4",
+    "msnodesql": "^0.2.1",
+    "node-loader": "^0.6.0",
+    "source-map-loader": "^0.1.5",
+    "source-map-support": "^0.4.6",
+    "ts-loader": "^1.1.0"
+  },
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "mssql": "^3.3.0",
+    "promise": "^7.1.1",
+    "restify": "^4.3.0"
+  }
+}

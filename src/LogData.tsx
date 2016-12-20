@@ -1,0 +1,67 @@
+import fs = require('fs');
+import Promise = require('promise');
+import { Entry } from './Entry';
+
+export class LogData {
+    private log: string[];
+    private line: number;
+    private lineData: string[];
+    private dateString: string;
+    private path: string;
+    private lineEntry: Entry;
+    constructor(path: string, logdata?: string[], currentLine?: number) {
+        this.path = path;
+        this.setLogData(logdata || null);
+        this.setLine(currentLine || 0);
+    }
+    incramentLine() {
+        this.line += 1;
+    }
+    getLine() {
+        return this.line;
+    }
+    setLine(value: number) {
+        this.line = value;
+    }
+    updateDateString(date: string) {
+        this.dateString = date;
+    }
+    setLineData() {
+        this.lineData = this.log[this.line].trim().split(` `);
+    }
+    setLogData(logData: string[]) {
+        this.log = logData;
+    }
+    getLineType() {
+        return this.lineData[2];
+    }
+    setLineEntry(entry: Entry) {
+        this.lineEntry = entry;
+    }
+    getLineEntry(): Entry {
+        return this.lineEntry;
+    }
+    getLineParams() {
+        let adjustedLine = this.line + 1;
+        return {
+            linedata: this.lineData,
+            dateString: this.dateString,
+            line: adjustedLine
+        }
+    }
+    getPath() {
+        return this.path;
+    }
+    getLogLength() {
+        return this.log.length;
+    }
+    setDateString(date: string) {
+        this.dateString = date;
+    }
+    getDateString() {
+        return this.dateString;
+    }
+    isLastLine() {
+        return !(this.getLine() < this.getLogLength());
+    }
+}
