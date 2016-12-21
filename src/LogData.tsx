@@ -24,13 +24,14 @@ export class LogData {
         this.line = value;
     }
     updateDateString(date: string) {
-        console.log('Data updated');
+        console.log('Date updated');
         this.dateString = date;
     }
     setLineData() {
         this.lineData = this.log[this.line].trim().split(` `);
     }
     setLogData(logData: string[]) {
+        console.log('Data updated');
         this.log = logData;
     }
     getLineType() {

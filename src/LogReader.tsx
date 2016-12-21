@@ -39,12 +39,12 @@ function startProcessing(logData: LogData): void {
 
 function processLogFile(logData: LogData): Promise.IThenable<LogData> {
     return new Promise<LogData>((resolve, reject) => {
-        fs.readFile(logData.getPath(), null, (err: NodeJS.ErrnoException, data: Buffer): void => {
+        fs.readFile(logData.getPath(), 'utf8', (err: NodeJS.ErrnoException, data: string): void => {
             if (err) {
                 reject(err)
             }
             console.log(`Loading new File Data`)
-            logData.setLogData(data.toString().trim().split('\r\n'));
+            logData.setLogData(data.trim().split('\r\n'));
             resolve(logData);
         });
     })
