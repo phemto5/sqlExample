@@ -33,7 +33,7 @@ function startProcessing(logData: LogData): void {
         .then(processLogLine)
         .then((res: LogData) => {
             processing = false;
-            console.log(`Processes are cleared`);
+            console.log(`Processes are cleared ${new Date().toLocaleString()}`);
         })
         .catch(catcher)
 }
