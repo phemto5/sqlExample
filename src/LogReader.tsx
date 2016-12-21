@@ -155,6 +155,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
 }
 
 function checkFileExists(logData: LogData): Promise.IThenable<LogData> {
+    console.log(`LoadFile`)
     return new Promise<LogData>((resolve, reject) => {
         fs.stat(logData.getPath(), (err: NodeJS.ErrnoException, stats: fs.Stats): void => {
             if (err) {

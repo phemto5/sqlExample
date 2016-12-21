@@ -24,6 +24,7 @@ export class LogData {
         this.line = value;
     }
     updateDateString(date: string) {
+        console.log('Data updated');
         this.dateString = date;
     }
     setLineData() {
