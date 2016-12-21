@@ -124,7 +124,7 @@
 	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var max;
-	            if (recordset && recordset.length == 0) {
+	            if (recordset || recordset.length == 0) {
 	                max = setMax(0);
 	            }
 	            else {
@@ -136,7 +136,7 @@
 	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var response;
-	            if (recordset && recordset.length == 0) {
+	            if (recordset.length == 0) {
 	                console.log(row);
 	                var insertRow = "insert into SolidworksLicUse values ('" + row.dateTime.toISOString() + "','" + row.product + "','" + row.action + "','" + row.entryPoint + "','" + row.user + "','" + row.stringData + "'," + row.dailyMax + ", " + row.lineNumber + " )";
 	                console.log("Inserting New Row");
