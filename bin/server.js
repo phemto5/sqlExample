@@ -124,7 +124,7 @@
 	            .then(function () {
 	            var dailyMaxRow = "select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('" + dateString + "' as DATE) and Entrypoint = '" + row.entryPoint + "' order by LineNumber DESC";
 	            return new sql.Request().query(dailyMaxRow);
-	        })
+	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var max;
 	            if (recordset && recordset.length == 0) {
@@ -136,7 +136,7 @@
 	            row.dailyMax = max;
 	            var existingRow = "select * from SolidworksLicUse where DateTime = '" + row.dateTime.toISOString() + "' and EntryPoint = '" + row.entryPoint + "' and LineNumber = " + row.lineNumber;
 	            return new sql.Request().query(existingRow);
-	        })
+	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var response;
 	            if (recordset && recordset.length == 0) {
@@ -149,7 +149,7 @@
 	                response = Promise.resolve([]);
 	            }
 	            return response;
-	        })
+	        }).catch(catcher)
 	            .then(function (recordset) {
 	            return nextRow(logData);
 	        })
@@ -175,6 +175,7 @@
 	        console.log(logData.getDateString());
 	        console.log("Waiting and retrying");
 	        setTimeout(function () {
+	            console.log('Done waiting');
 	        }, 3000);
 	    }
 	    else {

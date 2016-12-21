@@ -37,7 +37,7 @@ function startProcessing(logData: LogData): void {
             processing = false;
             console.log(`Processes are cleared ${new Date().toLocaleString()}`);
         })
-        .catch(catcher)
+        .catch(catcher);
 }
 
 function processLogFile(logData: LogData): Promise.IThenable<LogData> {
@@ -77,7 +77,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                     `select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('${dateString}' as DATE) and Entrypoint = '${row.entryPoint}' order by LineNumber DESC`
                 // console.log(`Getting Daily Max`);
                 return new sql.Request().query(dailyMaxRow);
-            })
+            }).catch(catcher)
             .then((recordset: mssql.recordSet) => {
                 let max: number;
                 if (recordset && recordset.length == 0) {
@@ -93,7 +93,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                     `select * from SolidworksLicUse where DateTime = '${row.dateTime.toISOString()}' and EntryPoint = '${row.entryPoint}' and LineNumber = ${row.lineNumber}`;
                 // console.log(`Getting existing Row`);
                 return new sql.Request().query(existingRow)
-            })
+            }).catch(catcher)
             .then((recordset: mssql.recordSet) => {
                 let response: Promise.IThenable<any>
                 if (recordset && recordset.length == 0) {
@@ -107,7 +107,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                     response = Promise.resolve([] as mssql.recordSet);
                 }
                 return response;
-            })
+            }).catch(catcher)
             .then((recordset: mssql.recordSet) => {
                 return nextRow(logData);
             })
@@ -133,6 +133,7 @@ export function catcher(err: any) {
         console.log(`Waiting and retrying`);
         setTimeout(() => {
             // repeatRow();
+            console.log('Done waiting');
         }, 3000)
     } else {
         console.error(err);
