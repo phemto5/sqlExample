@@ -9,9 +9,10 @@ let filePath: string = `\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\So
 let startLineNumber: number = 0;
 // export let processes: Promise.IThenable<any>[] = [];
 let processing: boolean = false
+let logData: LogData = new LogData(filePath, null, startLineNumber)
 
 export function init(): void {
-    let logData: LogData = new LogData(filePath, null, startLineNumber)
+
     let seconds: number = 30;
     console.log(`Initial run ...`);
     startProcessing(logData);
@@ -19,7 +20,7 @@ export function init(): void {
         // console.log(`Processes Running ${processes.length}`)
         if (!processing) {
             console.info('Filling Data from licence file');
-            processing = true;
+
             startProcessing(logData);
         } else {
             console.log(`Still processing ...\n\tDelaying next process for ${seconds} seconds`);
@@ -28,6 +29,7 @@ export function init(): void {
 }
 
 function startProcessing(logData: LogData): void {
+    processing = true;
     checkFileExists(logData)
         .then(processLogFile)
         .then(processLogLine)
@@ -54,6 +56,9 @@ function nextRow(logData: LogData): Promise.IThenable<LogData> {
     logData.incramentLine();
     return processLogLine(logData);
 }
+function repeatRow(): Promise.IThenable<LogData> {
+    return processLogLine(logData);
+}
 
 function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogData> {
     let dateString: string = logData.getDateString();
@@ -70,11 +75,12 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
             .then(() => {
                 let dailyMaxRow: string =
                     `select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('${dateString}' as DATE) and Entrypoint = '${row.entryPoint}' order by LineNumber DESC`
+                // console.log(`Getting Daily Max`);
                 return new sql.Request().query(dailyMaxRow);
-            }).catch(catcher)
+            })
             .then((recordset: mssql.recordSet) => {
                 let max: number;
-                if (recordset.length == 0) {
+                if (recordset && recordset.length == 0) {
                     // console.log(`DailyMax : 0 `)
                     max = setMax(0);
                 } else {
@@ -85,8 +91,9 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                 // console.log(`${row.dailyMax} for ${dateString} with ${row.action} at line ${row.lineNumber}`);
                 let existingRow: string =
                     `select * from SolidworksLicUse where DateTime = '${row.dateTime.toISOString()}' and EntryPoint = '${row.entryPoint}' and LineNumber = ${row.lineNumber}`;
+                // console.log(`Getting existing Row`);
                 return new sql.Request().query(existingRow)
-            }).catch(catcher)
+            })
             .then((recordset: mssql.recordSet) => {
                 let response: Promise.IThenable<any>
                 if (recordset && recordset.length == 0) {
@@ -94,15 +101,17 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                     console.log(row);
                     let insertRow: string =
                         `insert into SolidworksLicUse values ('${row.dateTime.toISOString()}','${row.product}','${row.action}','${row.entryPoint}','${row.user}','${row.stringData}',${row.dailyMax}, ${row.lineNumber} )`;
+                    console.log(`Inserting New Row`);
                     response = new sql.Request().query(insertRow);
                 } else {
                     response = Promise.resolve([] as mssql.recordSet);
                 }
                 return response;
-            }).catch(catcher)
+            })
             .then((recordset: mssql.recordSet) => {
                 return nextRow(logData);
             })
+            .catch(catcher)
     } else {
         rowResponse = nextRow(logData);
     }
@@ -117,7 +126,17 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
 }
 export function catcher(err: any) {
     console.error(`Error was Caught`);
-    console.error(err);
+    if (err.code == "ECONNCLOSED") {
+        console.log(`Error inserting line ${logData.getLine()}`);
+        console.log(logData.getLineEntry());
+        console.log(logData.getDateString());
+        console.log(`Waiting and retrying`);
+        setTimeout(() => {
+            // repeatRow();
+        }, 3000)
+    } else {
+        console.error(err);
+    }
 }
 
 function processLogLine(logData: LogData): Promise.IThenable<LogData> {
@@ -132,7 +151,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
             }
             case 'TIMESTAMP': {
                 logData.setLineEntry(new TimestampLine(logData.getLineParams()));
-                console.log(`Found Timestamp ${(logData.getLineEntry() as TimestampLine).dateString}`);
+                // console.log(`Found Timestamp ${(logData.getLineEntry() as TimestampLine).dateString}`);
                 logData.setDateString((logData.getLineEntry() as TimestampLine).dateString);
                 nextStep = nextRow(logData);
                 break;
@@ -143,7 +162,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
                 break;
             }
             default: {
-                console.log(`No line Recorded`);
+                // console.log(`No line Recorded`);
                 nextStep = nextRow(logData)
                 break;
             }

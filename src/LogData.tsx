@@ -24,21 +24,21 @@ export class LogData {
         this.line = value;
     }
     updateDateString(date: string) {
-        console.log('Date updated');
+        // console.log('Date updated');
         this.dateString = date;
     }
     setLineData() {
         this.lineData = this.log[this.line].trim().split(` `);
     }
     setLogData(logData: string[]) {
-        console.log('Data updated');
+        // console.log('Data updated');
         this.log = logData;
     }
     getLineType() {
         return this.lineData[2];
     }
     setLineEntry(entry: Entry) {
-        console.log(`Line Added`)
+        // console.log(`Line Added`)
         this.lineEntry = entry;
     }
     getLineEntry(): Entry {

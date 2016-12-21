@@ -63,15 +63,14 @@
 	var filePath = "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log";
 	var startLineNumber = 0;
 	var processing = false;
+	var logData = new LogData_1.LogData(filePath, null, startLineNumber);
 	function init() {
-	    var logData = new LogData_1.LogData(filePath, null, startLineNumber);
 	    var seconds = 30;
 	    console.log("Initial run ...");
 	    startProcessing(logData);
 	    setInterval(function () {
 	        if (!processing) {
 	            console.info('Filling Data from licence file');
-	            processing = true;
 	            startProcessing(logData);
 	        }
 	        else {
@@ -81,6 +80,7 @@
 	}
 	exports.init = init;
 	function startProcessing(logData) {
+	    processing = true;
 	    checkFileExists(logData)
 	        .then(processLogFile)
 	        .then(processLogLine)
@@ -106,6 +106,9 @@
 	    logData.incramentLine();
 	    return processLogLine(logData);
 	}
+	function repeatRow() {
+	    return processLogLine(logData);
+	}
 	function addRow(logData, maxModifyer) {
 	    var dateString = logData.getDateString();
 	    var row = logData.getLineEntry();
@@ -121,10 +124,10 @@
 	            .then(function () {
 	            var dailyMaxRow = "select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('" + dateString + "' as DATE) and Entrypoint = '" + row.entryPoint + "' order by LineNumber DESC";
 	            return new sql.Request().query(dailyMaxRow);
-	        }).catch(catcher)
+	        })
 	            .then(function (recordset) {
 	            var max;
-	            if (recordset.length == 0) {
+	            if (recordset && recordset.length == 0) {
 	                max = setMax(0);
 	            }
 	            else {
@@ -133,22 +136,24 @@
 	            row.dailyMax = max;
 	            var existingRow = "select * from SolidworksLicUse where DateTime = '" + row.dateTime.toISOString() + "' and EntryPoint = '" + row.entryPoint + "' and LineNumber = " + row.lineNumber;
 	            return new sql.Request().query(existingRow);
-	        }).catch(catcher)
+	        })
 	            .then(function (recordset) {
 	            var response;
 	            if (recordset && recordset.length == 0) {
 	                console.log(row);
 	                var insertRow = "insert into SolidworksLicUse values ('" + row.dateTime.toISOString() + "','" + row.product + "','" + row.action + "','" + row.entryPoint + "','" + row.user + "','" + row.stringData + "'," + row.dailyMax + ", " + row.lineNumber + " )";
+	                console.log("Inserting New Row");
 	                response = new sql.Request().query(insertRow);
 	            }
 	            else {
 	                response = Promise.resolve([]);
 	            }
 	            return response;
-	        }).catch(catcher)
+	        })
 	            .then(function (recordset) {
 	            return nextRow(logData);
-	        });
+	        })
+	            .catch(catcher);
 	    }
 	    else {
 	        rowResponse = nextRow(logData);
@@ -164,7 +169,17 @@
 	}
 	function catcher(err) {
 	    console.error("Error was Caught");
-	    console.error(err);
+	    if (err.code == "ECONNCLOSED") {
+	        console.log("Error inserting line " + logData.getLine());
+	        console.log(logData.getLineEntry());
+	        console.log(logData.getDateString());
+	        console.log("Waiting and retrying");
+	        setTimeout(function () {
+	        }, 3000);
+	    }
+	    else {
+	        console.error(err);
+	    }
 	}
 	exports.catcher = catcher;
 	function processLogLine(logData) {
@@ -179,7 +194,6 @@
 	            }
 	            case 'TIMESTAMP': {
 	                logData.setLineEntry(new Entry_1.TimestampLine(logData.getLineParams()));
-	                console.log("Found Timestamp " + logData.getLineEntry().dateString);
 	                logData.setDateString(logData.getLineEntry().dateString);
 	                nextStep = nextRow(logData);
 	                break;
@@ -190,7 +204,6 @@
 	                break;
 	            }
 	            default: {
-	                console.log("No line Recorded");
 	                nextStep = nextRow(logData);
 	                break;
 	            }
@@ -298,21 +311,18 @@
 	        this.line = value;
 	    };
 	    LogData.prototype.updateDateString = function (date) {
-	        console.log('Date updated');
 	        this.dateString = date;
 	    };
 	    LogData.prototype.setLineData = function () {
 	        this.lineData = this.log[this.line].trim().split(" ");
 	    };
 	    LogData.prototype.setLogData = function (logData) {
-	        console.log('Data updated');
 	        this.log = logData;
 	    };
 	    LogData.prototype.getLineType = function () {
 	        return this.lineData[2];
 	    };
 	    LogData.prototype.setLineEntry = function (entry) {
-	        console.log("Line Added");
 	        this.lineEntry = entry;
 	    };
 	    LogData.prototype.getLineEntry = function () {
