@@ -7,7 +7,8 @@ import { LogData } from './LogData';
 let sql: any = require('mssql');
 let filePath: string = `\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log`;
 let startLineNumber: number = 0;
-export let processes: Promise.IThenable<any>[] = [];
+// export let processes: Promise.IThenable<any>[] = [];
+let processing: boolean = false
 
 export function init(): void {
     let logData: LogData = new LogData(filePath, null, startLineNumber)
@@ -16,8 +17,9 @@ export function init(): void {
     startProcessing(logData);
     setInterval(() => {
         // console.log(`Processes Running ${processes.length}`)
-        if (processes.length == 0) {
+        if (!processing) {
             console.info('Filling Data from licence file');
+            processing = true;
             startProcessing(logData);
         } else {
             console.log(`Still processing ...\n\tDelaying next process for ${seconds} seconds`);
@@ -26,15 +28,14 @@ export function init(): void {
 }
 
 function startProcessing(logData: LogData): void {
-    processes.push(checkFileExists(logData)
+    checkFileExists(logData)
         .then(processLogFile)
         .then(processLogLine)
+        .then((res: LogData) => {
+            processing = false;
+            console.log(`Processes are cleared`);
+        })
         .catch(catcher)
-    );
-    Promise.all(processes).then((res: LogData[]) => {
-        processes.pop();
-        console.log(`Processes are cleared`);
-    });
 }
 
 function processLogFile(logData: LogData): Promise.IThenable<LogData> {
@@ -131,7 +132,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
             }
             case 'TIMESTAMP': {
                 logData.setLineEntry(new TimestampLine(logData.getLineParams()));
-                //console.log(`Found Timestamp ${timeRow.lineNumber} ${timeRow.dateString}`);
+                console.log(`Found Timestamp ${(logData.getLineEntry() as TimestampLine).dateString}`);
                 logData.setDateString((logData.getLineEntry() as TimestampLine).dateString);
                 nextStep = nextRow(logData);
                 break;
@@ -142,6 +143,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
                 break;
             }
             default: {
+                console.log(`No line Recorded`);
                 nextStep = nextRow(logData)
                 break;
             }

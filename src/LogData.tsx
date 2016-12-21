@@ -38,6 +38,7 @@ export class LogData {
         return this.lineData[2];
     }
     setLineEntry(entry: Entry) {
+        console.log(`Line Added`)
         this.lineEntry = entry;
     }
     getLineEntry(): Entry {
