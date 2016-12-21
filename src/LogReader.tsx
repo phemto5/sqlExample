@@ -19,7 +19,7 @@ export function init(): void {
     setInterval(() => {
         // console.log(`Processes Running ${processes.length}`)
         if (!processing) {
-            console.info('Filling Data from licence file');
+            // console.info('Filling Data from licence file');
 
             startProcessing(logData);
         } else {
@@ -46,7 +46,7 @@ function processLogFile(logData: LogData): Promise.IThenable<LogData> {
             if (err) {
                 reject(err)
             }
-            console.log(`Loading new File Data`)
+            // console.log(`Loading new File Data`)
             logData.setLogData(data.trim().split('\r\n'));
             resolve(logData);
         });
@@ -101,7 +101,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                     console.log(row);
                     let insertRow: string =
                         `insert into SolidworksLicUse values ('${row.dateTime.toISOString()}','${row.product}','${row.action}','${row.entryPoint}','${row.user}','${row.stringData}',${row.dailyMax}, ${row.lineNumber} )`;
-                    console.log(`Inserting New Row`);
+                    // console.log(`Inserting New Row`);
                     response = new sql.Request().query(insertRow);
                 } else {
                     response = Promise.resolve([] as mssql.recordSet);
@@ -130,7 +130,7 @@ export function catcher(err: any) {
         // console.log(`Error inserting line ${logData.getLine()}`);
         // console.log(logData.getLineEntry());
         // console.log(logData.getDateString());
-        console.log(`Waiting and retrying`);
+        // console.log(`Waiting and retrying`);
         setTimeout(() => {
             // repeatRow();
             console.log('Done waiting');
@@ -177,13 +177,13 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
 }
 
 function checkFileExists(logData: LogData): Promise.IThenable<LogData> {
-    console.log(`LoadFile`)
+    // console.log(`LoadFile`)
     return new Promise<LogData>((resolve, reject) => {
         fs.stat(logData.getPath(), (err: NodeJS.ErrnoException, stats: fs.Stats): void => {
             if (err) {
                 reject(err);
             }
-            console.log(`Processing Log File`);
+            // console.log(`Processing Log File`);
             // logData.updateDateString(new Date(stats.birthtime).toLocaleDateString());
             logData.updateDateString(null);
             resolve(logData)

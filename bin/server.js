@@ -70,7 +70,6 @@
 	    startProcessing(logData);
 	    setInterval(function () {
 	        if (!processing) {
-	            console.info('Filling Data from licence file');
 	            startProcessing(logData);
 	        }
 	        else {
@@ -96,7 +95,6 @@
 	            if (err) {
 	                reject(err);
 	            }
-	            console.log("Loading new File Data");
 	            logData.setLogData(data.trim().split('\r\n'));
 	            resolve(logData);
 	        });
@@ -124,7 +122,7 @@
 	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var max;
-	            if (recordset || recordset.length == 0) {
+	            if (recordset && recordset.length == 0) {
 	                max = setMax(0);
 	            }
 	            else {
@@ -136,10 +134,9 @@
 	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var response;
-	            if (recordset.length == 0) {
+	            if (recordset && recordset.length == 0) {
 	                console.log(row);
 	                var insertRow = "insert into SolidworksLicUse values ('" + row.dateTime.toISOString() + "','" + row.product + "','" + row.action + "','" + row.entryPoint + "','" + row.user + "','" + row.stringData + "'," + row.dailyMax + ", " + row.lineNumber + " )";
-	                console.log("Inserting New Row");
 	                response = new sql.Request().query(insertRow);
 	            }
 	            else {
@@ -167,7 +164,6 @@
 	function catcher(err) {
 	    console.error("Error was Caught");
 	    if (err.code == "ECONNCLOSED") {
-	        console.log("Waiting and retrying");
 	        setTimeout(function () {
 	            console.log('Done waiting');
 	        }, 3000);
@@ -211,13 +207,11 @@
 	    return nextStep;
 	}
 	function checkFileExists(logData) {
-	    console.log("LoadFile");
 	    return new Promise(function (resolve, reject) {
 	        fs.stat(logData.getPath(), function (err, stats) {
 	            if (err) {
 	                reject(err);
 	            }
-	            console.log("Processing Log File");
 	            logData.updateDateString(null);
 	            resolve(logData);
 	        });
