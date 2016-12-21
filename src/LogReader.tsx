@@ -89,7 +89,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
             }).catch(catcher)
             .then((recordset: mssql.recordSet) => {
                 let response: Promise.IThenable<any>
-                if (recordset.length == 0) {
+                if (recordset && recordset.length == 0) {
                     // console.log(`Row Insert`);
                     console.log(row);
                     let insertRow: string =

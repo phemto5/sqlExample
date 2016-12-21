@@ -136,7 +136,7 @@
 	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var response;
-	            if (recordset.length == 0) {
+	            if (recordset && recordset.length == 0) {
 	                console.log(row);
 	                var insertRow = "insert into SolidworksLicUse values ('" + row.dateTime.toISOString() + "','" + row.product + "','" + row.action + "','" + row.entryPoint + "','" + row.user + "','" + row.stringData + "'," + row.dailyMax + ", " + row.lineNumber + " )";
 	                response = new sql.Request().query(insertRow);
