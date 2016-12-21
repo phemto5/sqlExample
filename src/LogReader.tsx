@@ -9,10 +9,10 @@ let filePath: string = `\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\So
 let startLineNumber: number = 0;
 // export let processes: Promise.IThenable<any>[] = [];
 let processing: boolean = false
-let logData: LogData = new LogData(filePath, null, startLineNumber)
+// let logData: LogData = new LogData(filePath, null, startLineNumber)
 
 export function init(): void {
-
+    let logData: LogData = new LogData(filePath, null, startLineNumber)
     let seconds: number = 30;
     console.log(`Initial run ...`);
     startProcessing(logData);
@@ -56,9 +56,9 @@ function nextRow(logData: LogData): Promise.IThenable<LogData> {
     logData.incramentLine();
     return processLogLine(logData);
 }
-function repeatRow(): Promise.IThenable<LogData> {
-    return processLogLine(logData);
-}
+// function repeatRow(): Promise.IThenable<LogData> {
+//     return processLogLine(logData);
+// }
 
 function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogData> {
     let dateString: string = logData.getDateString();
@@ -127,9 +127,9 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
 export function catcher(err: any) {
     console.error(`Error was Caught`);
     if (err.code == "ECONNCLOSED") {
-        console.log(`Error inserting line ${logData.getLine()}`);
-        console.log(logData.getLineEntry());
-        console.log(logData.getDateString());
+        // console.log(`Error inserting line ${logData.getLine()}`);
+        // console.log(logData.getLineEntry());
+        // console.log(logData.getDateString());
         console.log(`Waiting and retrying`);
         setTimeout(() => {
             // repeatRow();

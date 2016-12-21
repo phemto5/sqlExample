@@ -63,8 +63,8 @@
 	var filePath = "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log";
 	var startLineNumber = 0;
 	var processing = false;
-	var logData = new LogData_1.LogData(filePath, null, startLineNumber);
 	function init() {
+	    var logData = new LogData_1.LogData(filePath, null, startLineNumber);
 	    var seconds = 30;
 	    console.log("Initial run ...");
 	    startProcessing(logData);
@@ -104,9 +104,6 @@
 	}
 	function nextRow(logData) {
 	    logData.incramentLine();
-	    return processLogLine(logData);
-	}
-	function repeatRow() {
 	    return processLogLine(logData);
 	}
 	function addRow(logData, maxModifyer) {
@@ -170,9 +167,6 @@
 	function catcher(err) {
 	    console.error("Error was Caught");
 	    if (err.code == "ECONNCLOSED") {
-	        console.log("Error inserting line " + logData.getLine());
-	        console.log(logData.getLineEntry());
-	        console.log(logData.getDateString());
 	        console.log("Waiting and retrying");
 	        setTimeout(function () {
 	            console.log('Done waiting');
