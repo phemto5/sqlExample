@@ -20,10 +20,9 @@ export function init(): void {
         // console.log(`Processes Running ${processes.length}`)
         if (!processing) {
             // console.info('Filling Data from licence file');
-
             startProcessing(logData);
         } else {
-            console.log(`Still processing ...\n\tDelaying next process for ${seconds} seconds`);
+            console.log(`Still processing:${processing} ...\n\tDelaying next process for ${seconds} seconds`);
         }
     }, 1000 * seconds);
 }

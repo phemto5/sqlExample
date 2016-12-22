@@ -73,7 +73,7 @@
 	            startProcessing(logData);
 	        }
 	        else {
-	            console.log("Still processing ...\n\tDelaying next process for " + seconds + " seconds");
+	            console.log("Still processing:" + processing + " ...\n\tDelaying next process for " + seconds + " seconds");
 	        }
 	    }, 1000 * seconds);
 	}
