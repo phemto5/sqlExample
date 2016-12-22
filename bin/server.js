@@ -81,6 +81,7 @@
 	}
 	exports.init = init;
 	function startProcessing(logData) {
+	    console.log("Start Processing");
 	    processing = true;
 	    checkFileExists(logData)
 	        .then(processLogFile)
@@ -92,6 +93,7 @@
 	        .catch(catcher);
 	}
 	function processLogFile(logData) {
+	    console.log("Processing Log File");
 	    return new Promise(function (resolve, reject) {
 	        fs.readFile(logData.getPath(), 'utf8', function (err, data) {
 	            if (err) {
@@ -165,7 +167,7 @@
 	}
 	function catcher(err) {
 	    processing = false;
-	    console.error("Error was Caught");
+	    console.error("Error was Caught. processing:" + processing);
 	    if (err.code == "ECONNCLOSED") {
 	        setTimeout(function () {
 	            console.log('Done waiting');
@@ -177,6 +179,7 @@
 	}
 	exports.catcher = catcher;
 	function processLogLine(logData) {
+	    console.log("Processing Line");
 	    var nextStep;
 	    if (!logData.isLastLine()) {
 	        logData.setLineData();
@@ -210,6 +213,7 @@
 	    return nextStep;
 	}
 	function checkFileExists(logData) {
+	    console.log("Check File Exists");
 	    return new Promise(function (resolve, reject) {
 	        fs.stat(logData.getPath(), function (err, stats) {
 	            if (err) {

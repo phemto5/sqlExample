@@ -30,6 +30,7 @@ export function init(): void {
 }
 
 function startProcessing(logData: LogData): void {
+    console.log(`Start Processing`)
     processing = true;
     checkFileExists(logData)
         .then(processLogFile)
@@ -42,6 +43,7 @@ function startProcessing(logData: LogData): void {
 }
 
 function processLogFile(logData: LogData): Promise.IThenable<LogData> {
+    console.log(`Processing Log File`);
     return new Promise<LogData>((resolve, reject) => {
         fs.readFile(logData.getPath(), 'utf8', (err: NodeJS.ErrnoException, data: string): void => {
             if (err) {
@@ -127,14 +129,9 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
 }
 export function catcher(err: any) {
     processing = false;
-    console.error(`Error was Caught`);
+    console.error(`Error was Caught. processing:${processing}`);
     if (err.code == "ECONNCLOSED") {
-        // console.log(`Error inserting line ${logData.getLine()}`);
-        // console.log(logData.getLineEntry());
-        // console.log(logData.getDateString());
-        // console.log(`Waiting and retrying`);
         setTimeout(() => {
-            // repeatRow();
             console.log('Done waiting');
         }, 3000)
     } else {
@@ -143,6 +140,7 @@ export function catcher(err: any) {
 }
 
 function processLogLine(logData: LogData): Promise.IThenable<LogData> {
+    console.log(`Processing Line`);
     let nextStep: Promise.IThenable<LogData>;
     if (!logData.isLastLine()) {
         logData.setLineData();
@@ -179,7 +177,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
 }
 
 function checkFileExists(logData: LogData): Promise.IThenable<LogData> {
-    // console.log(`LoadFile`)
+    console.log(`Check File Exists`)
     return new Promise<LogData>((resolve, reject) => {
         fs.stat(logData.getPath(), (err: NodeJS.ErrnoException, stats: fs.Stats): void => {
             if (err) {
