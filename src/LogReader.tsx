@@ -17,12 +17,14 @@ export function init(): void {
     console.log(`Initial run ...`);
     startProcessing(logData);
     setInterval(() => {
+        console.log(`Still processing:`);
         // console.log(`Processes Running ${processes.length}`)
         if (!processing) {
             // console.info('Filling Data from licence file');
+            console.log(`${processing} ...\n\tStarting next process`);
             startProcessing(logData);
         } else {
-            console.log(`Still processing:${processing} ...\n\tDelaying next process for ${seconds} seconds`);
+            console.log(`${processing} ...\n\tDelaying next process for ${seconds} seconds`);
         }
     }, 1000 * seconds);
 }
@@ -124,6 +126,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
     }
 }
 export function catcher(err: any) {
+    processing = false;
     console.error(`Error was Caught`);
     if (err.code == "ECONNCLOSED") {
         // console.log(`Error inserting line ${logData.getLine()}`);

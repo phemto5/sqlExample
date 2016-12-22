@@ -69,11 +69,13 @@
 	    console.log("Initial run ...");
 	    startProcessing(logData);
 	    setInterval(function () {
+	        console.log("Still processing:");
 	        if (!processing) {
+	            console.log(processing + " ...\n\tStarting next process");
 	            startProcessing(logData);
 	        }
 	        else {
-	            console.log("Still processing:" + processing + " ...\n\tDelaying next process for " + seconds + " seconds");
+	            console.log(processing + " ...\n\tDelaying next process for " + seconds + " seconds");
 	        }
 	    }, 1000 * seconds);
 	}
@@ -162,6 +164,7 @@
 	    }
 	}
 	function catcher(err) {
+	    processing = false;
 	    console.error("Error was Caught");
 	    if (err.code == "ECONNCLOSED") {
 	        setTimeout(function () {
