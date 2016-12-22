@@ -179,7 +179,7 @@
 	}
 	exports.catcher = catcher;
 	function processLogLine(logData) {
-	    console.log("Processing Line");
+	    console.log("Processing Line " + logData.getLine());
 	    var nextStep;
 	    if (!logData.isLastLine()) {
 	        logData.setLineData();

@@ -140,7 +140,7 @@ export function catcher(err: any) {
 }
 
 function processLogLine(logData: LogData): Promise.IThenable<LogData> {
-    console.log(`Processing Line`);
+    console.log(`Processing Line ${logData.getLine()}`);
     let nextStep: Promise.IThenable<LogData>;
     if (!logData.isLastLine()) {
         logData.setLineData();
