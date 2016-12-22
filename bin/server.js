@@ -61,7 +61,7 @@
 	var LogData_1 = __webpack_require__(5);
 	var sql = __webpack_require__(6);
 	var filePath = "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log";
-	var startLineNumber = 18600;
+	var startLineNumber = 0;
 	var processing = false;
 	function init() {
 	    var dString = null;

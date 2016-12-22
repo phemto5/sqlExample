@@ -6,7 +6,7 @@ import { LogData } from './LogData';
 
 let sql: any = require('mssql');
 let filePath: string = `\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log`;
-let startLineNumber: number = 18600;
+let startLineNumber: number = 0;
 // export let processes: Promise.IThenable<any>[] = [];
 let processing: boolean = false
 // let logData: LogData = new LogData(filePath, null, startLineNumber)
