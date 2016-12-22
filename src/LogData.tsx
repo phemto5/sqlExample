@@ -67,4 +67,7 @@ export class LogData {
     isLastLine() {
         return !(this.getLine() < this.getLogLength());
     }
+    getLineCount() {
+        return this.log.length;
+    }
 }

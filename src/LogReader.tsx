@@ -51,6 +51,7 @@ function processLogFile(logData: LogData): Promise.IThenable<LogData> {
             }
             // console.log(`Loading new File Data`)
             logData.setLogData(data.trim().split('\r\n'));
+            console.log(`Found ${logData.getLineCount()} lines`)
             resolve(logData);
         });
     })

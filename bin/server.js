@@ -100,6 +100,7 @@
 	                reject(err);
 	            }
 	            logData.setLogData(data.trim().split('\r\n'));
+	            console.log("Found " + logData.getLineCount() + " lines");
 	            resolve(logData);
 	        });
 	    });
@@ -346,6 +347,9 @@
 	    };
 	    LogData.prototype.isLastLine = function () {
 	        return !(this.getLine() < this.getLogLength());
+	    };
+	    LogData.prototype.getLineCount = function () {
+	        return this.log.length;
 	    };
 	    return LogData;
 	}());
