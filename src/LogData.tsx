@@ -9,10 +9,13 @@ export class LogData {
     private dateString: string;
     private path: string;
     private lineEntry: Entry;
-    constructor(path: string, logdata?: string[], currentLine?: number) {
+    constructor(path: string, logdata?: string[], currentLine?: number, dateString?: string) {
         this.path = path;
         this.setLogData(logdata || null);
         this.setLine(currentLine || 0);
+        if (dateString) {
+            this.dateString = dateString;
+        }
     }
     incramentLine() {
         this.line += 1;
@@ -23,10 +26,10 @@ export class LogData {
     setLine(value: number) {
         this.line = value;
     }
-    updateDateString(date: string) {
-        // console.log('Date updated');
-        this.dateString = date;
-    }
+    // updateDateString(date: string) {
+    //     // console.log('Date updated');
+    //     this.dateString = date;
+    // }
     setLineData() {
         this.lineData = this.log[this.line].trim().split(` `);
     }
@@ -70,4 +73,16 @@ export class LogData {
     getLineCount() {
         return this.log.length;
     }
+    // getFinalState() {
+    //     return new FinalState(this.dateString, this.line);
+    // }
 }
+
+// export class FinalState {
+//     lastLine: number
+//     dateString: string
+//     constructor(ds: string, line: number) {
+//         this.lastLine = line;
+//         this.dateString = ds;
+//     }
+// }

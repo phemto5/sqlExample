@@ -61,18 +61,23 @@
 	var LogData_1 = __webpack_require__(5);
 	var sql = __webpack_require__(6);
 	var filePath = "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log";
-	var startLineNumber = 0;
+	var startLineNumber = 18600;
 	var processing = false;
 	function init() {
-	    var logData = new LogData_1.LogData(filePath, null, startLineNumber);
+	    var dString = null;
 	    var seconds = 30;
-	    console.log("Initial run ...");
-	    startProcessing(logData);
 	    setInterval(function () {
+	        var logData = new LogData_1.LogData(filePath, null, startLineNumber, dString);
 	        console.log("Still processing:");
 	        if (!processing) {
 	            console.log(processing + " ...\n\tStarting next process");
-	            startProcessing(logData);
+	            startProcessing(logData)
+	                .then(function (ld) {
+	                dString = ld.getDateString();
+	                startLineNumber = ld.getLine();
+	                logData = ld;
+	            })
+	                .catch(catcher);
 	        }
 	        else {
 	            console.log(processing + " ...\n\tDelaying next process for " + seconds + " seconds");
@@ -83,14 +88,15 @@
 	function startProcessing(logData) {
 	    console.log("Start Processing");
 	    processing = true;
-	    checkFileExists(logData)
+	    return checkFileExists(logData)
 	        .then(processLogFile)
 	        .then(processLogLine)
 	        .then(function (res) {
 	        processing = false;
 	        console.log("Processes are cleared " + new Date().toLocaleString());
-	    })
-	        .catch(catcher);
+	        console.log("Last Date " + res.getDateString());
+	        return Promise.resolve(res);
+	    });
 	}
 	function processLogFile(logData) {
 	    console.log("Processing Log File");
@@ -121,6 +127,7 @@
 	        database: 'WagEngineering'
 	    };
 	    if (dateString) {
+	        console.log("Found Date String");
 	        rowResponse = sql.connect(config)
 	            .then(function () {
 	            var dailyMaxRow = "select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('" + dateString + "' as DATE) and Entrypoint = '" + row.entryPoint + "' order by LineNumber DESC";
@@ -159,6 +166,7 @@
 	            .catch(catcher);
 	    }
 	    else {
+	        console.log("No Date String");
 	        rowResponse = nextRow(logData);
 	    }
 	    return rowResponse;
@@ -196,6 +204,7 @@
 	            }
 	            case 'TIMESTAMP': {
 	                logData.setLineEntry(new Entry_1.TimestampLine(logData.getLineParams()));
+	                console.log("Setting Date to: " + logData.getLineEntry().dateString);
 	                logData.setDateString(logData.getLineEntry().dateString);
 	                nextStep = nextRow(logData);
 	                break;
@@ -224,7 +233,6 @@
 	            if (err) {
 	                reject(err);
 	            }
-	            logData.updateDateString(null);
 	            resolve(logData);
 	        });
 	    });
@@ -297,10 +305,13 @@
 
 	"use strict";
 	var LogData = (function () {
-	    function LogData(path, logdata, currentLine) {
+	    function LogData(path, logdata, currentLine, dateString) {
 	        this.path = path;
 	        this.setLogData(logdata || null);
 	        this.setLine(currentLine || 0);
+	        if (dateString) {
+	            this.dateString = dateString;
+	        }
 	    }
 	    LogData.prototype.incramentLine = function () {
 	        this.line += 1;
@@ -310,9 +321,6 @@
 	    };
 	    LogData.prototype.setLine = function (value) {
 	        this.line = value;
-	    };
-	    LogData.prototype.updateDateString = function (date) {
-	        this.dateString = date;
 	    };
 	    LogData.prototype.setLineData = function () {
 	        this.lineData = this.log[this.line].trim().split(" ");

@@ -6,40 +6,53 @@ import { LogData } from './LogData';
 
 let sql: any = require('mssql');
 let filePath: string = `\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log`;
-let startLineNumber: number = 0;
+let startLineNumber: number = 18600;
 // export let processes: Promise.IThenable<any>[] = [];
 let processing: boolean = false
 // let logData: LogData = new LogData(filePath, null, startLineNumber)
+// let pTimer: NodeJS.Timer;
+// let logData: LogData = new LogData(filePath, null, startLineNumber);
+// let seconds: number = 30;
 
 export function init(): void {
-    let logData: LogData = new LogData(filePath, null, startLineNumber)
+    let dString: string = null;
     let seconds: number = 30;
-    console.log(`Initial run ...`);
-    startProcessing(logData);
+    // let seconds: number = 30;
+    // console.log(`Initial run ...`);
+    // startProcessing(logData)
     setInterval(() => {
+        let logData: LogData = new LogData(filePath, null, startLineNumber, dString);
         console.log(`Still processing:`);
         // console.log(`Processes Running ${processes.length}`)
         if (!processing) {
             // console.info('Filling Data from licence file');
             console.log(`${processing} ...\n\tStarting next process`);
-            startProcessing(logData);
+            startProcessing(logData)
+                .then((ld: LogData) => {
+                    dString = ld.getDateString();
+                    startLineNumber = ld.getLine();
+                    // console.log(ld);
+                    logData = ld;
+                })
+                .catch(catcher);
         } else {
             console.log(`${processing} ...\n\tDelaying next process for ${seconds} seconds`);
         }
     }, 1000 * seconds);
 }
 
-function startProcessing(logData: LogData): void {
+function startProcessing(logData: LogData): Promise.IThenable<LogData> {
     console.log(`Start Processing`)
     processing = true;
-    checkFileExists(logData)
+    return checkFileExists(logData)
         .then(processLogFile)
         .then(processLogLine)
         .then((res: LogData) => {
             processing = false;
             console.log(`Processes are cleared ${new Date().toLocaleString()}`);
+            console.log(`Last Date ${res.getDateString()}`);
+            return Promise.resolve(res);
         })
-        .catch(catcher);
 }
 
 function processLogFile(logData: LogData): Promise.IThenable<LogData> {
@@ -76,6 +89,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
         database: 'WagEngineering'
     }
     if (dateString) {
+        console.log(`Found Date String`)
         rowResponse = sql.connect(config)
             .then(() => {
                 let dailyMaxRow: string =
@@ -119,6 +133,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
             })
             .catch(catcher)
     } else {
+        console.log(`No Date String`)
         rowResponse = nextRow(logData);
     }
     return rowResponse;
@@ -156,6 +171,7 @@ function processLogLine(logData: LogData): Promise.IThenable<LogData> {
             case 'TIMESTAMP': {
                 logData.setLineEntry(new TimestampLine(logData.getLineParams()));
                 // console.log(`Found Timestamp ${(logData.getLineEntry() as TimestampLine).dateString}`);
+                console.log(`Setting Date to: ${(logData.getLineEntry() as TimestampLine).dateString}`)
                 logData.setDateString((logData.getLineEntry() as TimestampLine).dateString);
                 nextStep = nextRow(logData);
                 break;
@@ -188,7 +204,7 @@ function checkFileExists(logData: LogData): Promise.IThenable<LogData> {
             }
             // console.log(`Processing Log File`);
             // logData.updateDateString(new Date(stats.birthtime).toLocaleDateString());
-            logData.updateDateString(null);
+            // logData.setDateString(null);
             resolve(logData)
         });
     });
