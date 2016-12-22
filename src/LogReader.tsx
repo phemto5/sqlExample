@@ -65,6 +65,7 @@ function nextRow(logData: LogData): Promise.IThenable<LogData> {
 // }
 
 function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogData> {
+    console.log(`Adding Row`);
     let dateString: string = logData.getDateString();
     let row: LoginLine = logData.getLineEntry() as LoginLine;
     let rowResponse: Promise.IThenable<any>
@@ -79,7 +80,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
             .then(() => {
                 let dailyMaxRow: string =
                     `select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('${dateString}' as DATE) and Entrypoint = '${row.entryPoint}' order by LineNumber DESC`
-                // console.log(`Getting Daily Max`);
+                console.log(`Getting Daily Max`);
                 return new sql.Request().query(dailyMaxRow);
             }).catch(catcher)
             .then((recordset: mssql.recordSet) => {
@@ -95,12 +96,12 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                 // console.log(`${row.dailyMax} for ${dateString} with ${row.action} at line ${row.lineNumber}`);
                 let existingRow: string =
                     `select * from SolidworksLicUse where DateTime = '${row.dateTime.toISOString()}' and EntryPoint = '${row.entryPoint}' and LineNumber = ${row.lineNumber}`;
-                // console.log(`Getting existing Row`);
+                console.log(`Getting existing Row`);
                 return new sql.Request().query(existingRow)
             }).catch(catcher)
             .then((recordset: mssql.recordSet) => {
                 let response: Promise.IThenable<any>
-                if (recordset && recordset.length == 0) {
+                if (recordset.length == 0) {
                     // console.log(`Row Insert`);
                     console.log(row);
                     let insertRow: string =
@@ -108,6 +109,7 @@ function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogDat
                     // console.log(`Inserting New Row`);
                     response = new sql.Request().query(insertRow);
                 } else {
+                    console.log(`Exists already`);
                     response = Promise.resolve([] as mssql.recordSet);
                 }
                 return response;

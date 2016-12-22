@@ -110,6 +110,7 @@
 	    return processLogLine(logData);
 	}
 	function addRow(logData, maxModifyer) {
+	    console.log("Adding Row");
 	    var dateString = logData.getDateString();
 	    var row = logData.getLineEntry();
 	    var rowResponse;
@@ -123,6 +124,7 @@
 	        rowResponse = sql.connect(config)
 	            .then(function () {
 	            var dailyMaxRow = "select top 1 DailyMax from SolidworksLicUse where CAST(DateTime as DATE) = CAST ('" + dateString + "' as DATE) and Entrypoint = '" + row.entryPoint + "' order by LineNumber DESC";
+	            console.log("Getting Daily Max");
 	            return new sql.Request().query(dailyMaxRow);
 	        }).catch(catcher)
 	            .then(function (recordset) {
@@ -135,16 +137,18 @@
 	            }
 	            row.dailyMax = max;
 	            var existingRow = "select * from SolidworksLicUse where DateTime = '" + row.dateTime.toISOString() + "' and EntryPoint = '" + row.entryPoint + "' and LineNumber = " + row.lineNumber;
+	            console.log("Getting existing Row");
 	            return new sql.Request().query(existingRow);
 	        }).catch(catcher)
 	            .then(function (recordset) {
 	            var response;
-	            if (recordset && recordset.length == 0) {
+	            if (recordset.length == 0) {
 	                console.log(row);
 	                var insertRow = "insert into SolidworksLicUse values ('" + row.dateTime.toISOString() + "','" + row.product + "','" + row.action + "','" + row.entryPoint + "','" + row.user + "','" + row.stringData + "'," + row.dailyMax + ", " + row.lineNumber + " )";
 	                response = new sql.Request().query(insertRow);
 	            }
 	            else {
+	                console.log("Exists already");
 	                response = Promise.resolve([]);
 	            }
 	            return response;
