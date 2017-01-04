@@ -26,10 +26,7 @@ export class LogData {
     setLine(value: number) {
         this.line = value;
     }
-    // updateDateString(date: string) {
-    //     // console.log('Date updated');
-    //     this.dateString = date;
-    // }
+
     setLineData() {
         this.lineData = this.log[this.line].trim().split(` `);
     }
@@ -73,16 +70,5 @@ export class LogData {
     getLineCount() {
         return this.log.length;
     }
-    // getFinalState() {
-    //     return new FinalState(this.dateString, this.line);
-    // }
-}
 
-// export class FinalState {
-//     lastLine: number
-//     dateString: string
-//     constructor(ds: string, line: number) {
-//         this.lastLine = line;
-//         this.dateString = ds;
-//     }
-// }
+}

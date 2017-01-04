@@ -1,12 +1,26 @@
+
+var webpack = require('webpack');
+var path = require('path');
+var fs = require('fs');
+
+var nodeModules = {};
+fs.readdirSync('node_modules')
+    .filter(function (x) {
+        return ['bin'].indexOf(x) === -1
+    })
+    .forEach(function (mod) {
+        nodeModules[mod] = 'commonjs ' + mod;
+    });
 module.exports = {
     entry: "./src/index.tsx",
     target: 'node',
     output: {
-        filename: "./bin/server.js",
+        filename: "server.js",
+        path: path.join(__dirname, 'bin')
     },
     devtool: "source-map",
     resolve: {
-        extensions: ["", ".tsx", ".js", ".webpack.js", ".web.js", ".ts"]
+        extensions: ["", ".tsx", ".js", ".jsx", ".webpack.js", ".web.js", ".ts", ".json"]
     },
     module: {
         // noParse: [
@@ -37,14 +51,15 @@ module.exports = {
             }
         ]
     },
-    externals: {
-        "react": "React",
-        "react-dom": "ReactDOM",
-        "promise": "Promise",
-        // "mssql": "mssql"
-        "msnodesql": "msnodesql",
-        "msnodesqlv8": "msnodesqlv8",
-        "dtrace-provider": "drtrace-provider",
-        // "formidable": "formidable"
-    }
+    externals: nodeModules
+    // {
+    //     "react": "React",
+    //     "react-dom": "ReactDOM",
+    //     "promise": "Promise",
+    //     // "mssql": "mssql"
+    //     "msnodesql": "msnodesql",
+    //     "msnodesqlv8": "msnodesqlv8",
+    //     "dtrace-provider": "drtrace-provider",
+    //     // "formidable": "formidable"
+    // }
 };

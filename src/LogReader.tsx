@@ -7,19 +7,11 @@ import { LogData } from './LogData';
 let sql: any = require('mssql');
 let filePath: string = `\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log`;
 let startLineNumber: number = 0;
-// export let processes: Promise.IThenable<any>[] = [];
 let processing: boolean = false
-// let logData: LogData = new LogData(filePath, null, startLineNumber)
-// let pTimer: NodeJS.Timer;
-// let logData: LogData = new LogData(filePath, null, startLineNumber);
-// let seconds: number = 30;
 
 export function init(): void {
     let dString: string = null;
     let seconds: number = 30;
-    // let seconds: number = 30;
-    // console.log(`Initial run ...`);
-    // startProcessing(logData)
     setInterval(() => {
         let logData: LogData = new LogData(filePath, null, startLineNumber, dString);
         console.log(`Still processing:`);
@@ -73,9 +65,6 @@ function nextRow(logData: LogData): Promise.IThenable<LogData> {
     logData.incramentLine();
     return processLogLine(logData);
 }
-// function repeatRow(): Promise.IThenable<LogData> {
-//     return processLogLine(logData);
-// }
 
 function addRow(logData: LogData, maxModifyer: number): Promise.IThenable<LogData> {
     console.log(`Adding Row`);
@@ -203,8 +192,6 @@ function checkFileExists(logData: LogData): Promise.IThenable<LogData> {
                 reject(err);
             }
             // console.log(`Processing Log File`);
-            // logData.updateDateString(new Date(stats.birthtime).toLocaleDateString());
-            // logData.setDateString(null);
             resolve(logData)
         });
     });
