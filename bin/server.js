@@ -45,16 +45,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var LogReader_1 = __webpack_require__(1);
-	LogReader_1.init();
-	console.log("Started Server " + new Date());
-
-
-/***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
 	var Promise = __webpack_require__(2);
 	var fs = __webpack_require__(3);
 	var Entry_1 = __webpack_require__(4);
@@ -63,34 +53,32 @@
 	var filePath = "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log";
 	var startLineNumber = 0;
 	var processing = false;
-	function init() {
-	    var dString = null;
-	    var seconds = 30;
-	    setInterval(function () {
-	        var logData = new LogData_1.LogData(filePath, null, startLineNumber, dString);
-	        console.log("Still processing:");
-	        if (!processing) {
-	            console.log(processing + " ...\n\tStarting next process");
-	            startProcessing(logData)
-	                .then(function (ld) {
-	                dString = ld.getDateString();
-	                startLineNumber = ld.getLine();
-	                logData = ld;
-	            })
-	                .catch(catcher);
-	        }
-	        else {
-	            console.log(processing + " ...\n\tDelaying next process for " + seconds + " seconds");
-	        }
-	    }, 1000 * seconds);
-	}
-	exports.init = init;
+	var dString = null;
+	var seconds = 30;
+	setInterval(function () {
+	    var logData = new LogData_1.LogData(filePath, null, startLineNumber, dString);
+	    console.log("Still processing:");
+	    if (!processing) {
+	        console.log(processing + " ...\n\tStarting next process");
+	        startProcessing(logData)
+	            .then(function (ld) {
+	            dString = ld.getDateString();
+	            startLineNumber = ld.getLine();
+	            logData = ld;
+	        })
+	            .catch(catcher);
+	    }
+	    else {
+	        console.log(processing + " ...\n\tDelaying next process for " + seconds + " seconds");
+	    }
+	}, 1000 * seconds);
+	console.log("Started Server " + new Date());
 	function startProcessing(logData) {
 	    console.log("Start Processing");
 	    processing = true;
 	    return checkFileExists(logData)
 	        .then(processLogFile)
-	        .then(processLogLine)
+	        .then(processLogLines)
 	        .then(function (res) {
 	        processing = false;
 	        console.log("Processes are cleared " + new Date().toLocaleString());
@@ -111,9 +99,44 @@
 	        });
 	    });
 	}
+	function processLogLines(logData) {
+	    console.log("Processing Line " + logData.getLine());
+	    var nextStep;
+	    if (!logData.isLastLine()) {
+	        logData.setLineData();
+	        switch (logData.getLineType()) {
+	            case 'IN:': {
+	                logData.setLineEntry(new Entry_1.LoginLine(logData.getLineParams()));
+	                nextStep = addRow(logData, 1);
+	                break;
+	            }
+	            case 'TIMESTAMP': {
+	                logData.setLineEntry(new Entry_1.TimestampLine(logData.getLineParams()));
+	                console.log("Setting Date to: " + logData.getLineEntry().dateString);
+	                logData.setDateString(logData.getLineEntry().dateString);
+	                nextStep = nextRow(logData);
+	                break;
+	            }
+	            case 'OUT:': {
+	                logData.setLineEntry(new Entry_1.LoginLine(logData.getLineParams()));
+	                nextStep = addRow(logData, -1);
+	                break;
+	            }
+	            default: {
+	                nextStep = nextRow(logData);
+	                break;
+	            }
+	        }
+	    }
+	    else {
+	        logData.setLine(logData.getLogLength());
+	        nextStep = Promise.resolve(logData);
+	    }
+	    return nextStep;
+	}
 	function nextRow(logData) {
 	    logData.incramentLine();
-	    return processLogLine(logData);
+	    return processLogLines(logData);
 	}
 	function addRow(logData, maxModifyer) {
 	    console.log("Adding Row");
@@ -191,41 +214,6 @@
 	    }
 	}
 	exports.catcher = catcher;
-	function processLogLine(logData) {
-	    console.log("Processing Line " + logData.getLine());
-	    var nextStep;
-	    if (!logData.isLastLine()) {
-	        logData.setLineData();
-	        switch (logData.getLineType()) {
-	            case 'IN:': {
-	                logData.setLineEntry(new Entry_1.LoginLine(logData.getLineParams()));
-	                nextStep = addRow(logData, 1);
-	                break;
-	            }
-	            case 'TIMESTAMP': {
-	                logData.setLineEntry(new Entry_1.TimestampLine(logData.getLineParams()));
-	                console.log("Setting Date to: " + logData.getLineEntry().dateString);
-	                logData.setDateString(logData.getLineEntry().dateString);
-	                nextStep = nextRow(logData);
-	                break;
-	            }
-	            case 'OUT:': {
-	                logData.setLineEntry(new Entry_1.LoginLine(logData.getLineParams()));
-	                nextStep = addRow(logData, -1);
-	                break;
-	            }
-	            default: {
-	                nextStep = nextRow(logData);
-	                break;
-	            }
-	        }
-	    }
-	    else {
-	        logData.setLine(logData.getLogLength());
-	        nextStep = Promise.resolve(logData);
-	    }
-	    return nextStep;
-	}
 	function checkFileExists(logData) {
 	    console.log("Check File Exists");
 	    return new Promise(function (resolve, reject) {
@@ -240,6 +228,7 @@
 
 
 /***/ },
+/* 1 */,
 /* 2 */
 /***/ function(module, exports) {
 
