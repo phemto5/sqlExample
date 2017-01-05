@@ -26,7 +26,6 @@ export class LogData {
     setLine(value: number) {
         this.line = value;
     }
-
     setLineData() {
         this.lineData = this.log[this.line].trim().split(` `);
     }
