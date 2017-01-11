@@ -12,7 +12,7 @@ fs.readdirSync('node_modules')
         nodeModules[mod] = 'commonjs ' + mod;
     });
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: "./src/index.ts",
     target: 'node',
     output: {
         filename: "server.js",
@@ -23,24 +23,18 @@ module.exports = {
         extensions: ["", ".tsx", ".js", ".jsx", ".webpack.js", ".web.js", ".ts", ".json"]
     },
     module: {
-        // noParse: [
-        //     /formidable/
-        // ],
         loaders: [
             {
                 test: /\.tsx?$/,
-                loader: "ts-loader",
-                //exclude: /node_modules/
+                loader: "ts-loader"
             },
             {
                 test: /\.json$/,
-                loader: 'json-loader',
-                //exclude: /node_modules/
+                loader: 'json-loader'
             },
             {
                 test: /\.node$/,
-                loader: 'node-loader',
-                //exclude: /node_modules/
+                loader: 'node-loader'
             }
         ],
         preLoaders: [
@@ -52,14 +46,4 @@ module.exports = {
         ]
     },
     externals: nodeModules
-    // {
-    //     "react": "React",
-    //     "react-dom": "ReactDOM",
-    //     "promise": "Promise",
-    //     // "mssql": "mssql"
-    //     "msnodesql": "msnodesql",
-    //     "msnodesqlv8": "msnodesqlv8",
-    //     "dtrace-provider": "drtrace-provider",
-    //     // "formidable": "formidable"
-    // }
 };
