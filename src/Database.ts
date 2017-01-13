@@ -25,22 +25,25 @@ export function UpsertDay(day: Day) {
         }
         if (recordset.length == 0) {
             //insert record
-            insertRow(day);
             console.log('Did not find date');
+            insertRow(day);
+
         }
-        else {
-            //updateRecord
-            updateMax(day);
-            console.log(`Found Date: `);
-            console.log(recordset);
-        }
+        // else {
+        //updateRecord
+        updateMax(day);
+        console.log(`Found Date: `);
+        console.log(recordset);
+        // }
     }
     function insertRow(day: Day) {
         request.query(`insert into ${sqlTable} values ('${day.getDate()}',0,0,0,0,0,0,0)`);
+        console.log('Inserted Date');
     }
     function updateMax(day: Day) {
-        day.products.map((product: string) => {
+        day.products.foreach((product: string) => {
             request.query(`update ${sqlTable} set ${product} = ${day.getHighMark(product)} where date = ${day.getDate()}`);
+            console.log(`Updated ${product}`);
         });
     }
 }

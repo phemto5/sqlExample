@@ -84,20 +84,25 @@
 	    LogFile.prototype.consumeFile = function (filePath) {
 	        var days;
 	        var fileString = fs.readFileSync(filePath, 'utf-8');
-	        var lineArray = fileString.split(/\n\r/g).map(function (str) {
+	        var lineArray = fileString.split(/\r\n/g).map(function (str) {
 	            return new StringLine_1.StringLine(str);
 	        });
 	        var window = new TwoDayWindow_1.TwoDayWindow(new Day_1.Day());
 	        lineArray.forEach(function (line, ind, arr) {
-	            var lineWindow = [line, arr[ind - 1]];
-	            if (LogFile.isNewDay(lineWindow)) {
-	                window.nextDay(new Day_1.Day());
-	            }
-	            if (LogFile.isPreviousDay(lineWindow)) {
-	                window.previous.addLine(line.lineString);
+	            if (ind === 0) {
+	                window.current.addLine(line.lineString);
 	            }
 	            else {
-	                window.current.addLine(line.lineString);
+	                var lineWindow = [line, arr[ind - 1]];
+	                if (LogFile.isNewDay(lineWindow)) {
+	                    window.nextDay(new Day_1.Day());
+	                }
+	                if (LogFile.isPreviousDay(lineWindow)) {
+	                    window.previous.addLine(line.lineString);
+	                }
+	                else {
+	                    window.current.addLine(line.lineString);
+	                }
 	            }
 	        });
 	        days = window
@@ -111,8 +116,10 @@
 	            return stringLine.getLineHour();
 	        });
 	        var currentTime = times[0], previousTime = times[1];
-	        if (currentTime < (previousTime + .5)) {
-	            result = true;
+	        if (currentTime < previousTime) {
+	            if (previousTime - currentTime > .5) {
+	                result = true;
+	            }
 	        }
 	        return result;
 	    };
@@ -140,18 +147,26 @@
 	var Day = (function () {
 	    function Day() {
 	        this.products = __webpack_require__(3).products;
+	        this.lines = [];
 	    }
 	    Day.prototype.getHighMark = function (product) {
 	        var highwater = 0;
+	        var current = 0;
 	        var prodExp = new RegExp(product, 'g');
 	        this.lines.forEach(function (line) {
 	            if (line.match(prodExp)) {
 	                if (line.match(/IN:/gi)) {
-	                    highwater++;
+	                    current++;
 	                }
 	                if (line.match(/OUT:/gi)) {
-	                    highwater--;
+	                    current--;
 	                }
+	            }
+	            if (current > highwater) {
+	                highwater = current;
+	            }
+	            if (current < 0) {
+	                current = 0;
 	            }
 	        });
 	        return highwater;
@@ -203,7 +218,7 @@
 
 	module.exports = {
 		"filePath": "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log",
-		"delaySeconds": 30
+		"delaySeconds": 1
 	};
 
 /***/ },
@@ -244,19 +259,24 @@
 	"use strict";
 	var TwoDayWindow = (function () {
 	    function TwoDayWindow(day, prev) {
+	        this.allDays = [];
 	        this.current = day;
 	        if (prev) {
 	            this.previous = prev;
 	        }
 	    }
 	    TwoDayWindow.prototype.nextDay = function (day) {
-	        this.allDays.push(this.previous);
+	        if (this.previous) {
+	            this.allDays.push(this.previous);
+	        }
 	        this.previous = this.current;
 	        this.current = day;
 	        return this;
 	    };
 	    TwoDayWindow.prototype.finishWindow = function () {
-	        this.allDays.push(this.previous);
+	        if (this.previous) {
+	            this.allDays.push(this.previous);
+	        }
 	        this.allDays.push(this.current);
 	        return this;
 	    };

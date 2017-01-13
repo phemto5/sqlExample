@@ -13,20 +13,23 @@ export class LogFile {
     private consumeFile(filePath: string): Day[] {
         let days: Day[];
         let fileString = fs.readFileSync(filePath, 'utf-8');
-        let lineArray: StringLine[] = fileString.split(/\n\r/g).map(str => {
+        let lineArray: StringLine[] = fileString.split(/\r\n/g).map(str => {
             return new StringLine(str);
-
         });
         let window = new TwoDayWindow(new Day());
         lineArray.forEach((line: StringLine, ind: number, arr: StringLine[]) => {
-            let lineWindow = [line, arr[ind - 1]];
-            if (LogFile.isNewDay(lineWindow)) {
-                window.nextDay(new Day());
-            }
-            if (LogFile.isPreviousDay(lineWindow)) {
-                window.previous.addLine(line.lineString);
-            } else {
+            if (ind === 0) {
                 window.current.addLine(line.lineString);
+            } else {
+                let lineWindow = [line, arr[ind - 1]];
+                if (LogFile.isNewDay(lineWindow)) {
+                    window.nextDay(new Day());
+                }
+                if (LogFile.isPreviousDay(lineWindow)) {
+                    window.previous.addLine(line.lineString);
+                } else {
+                    window.current.addLine(line.lineString);
+                }
             }
         })
         days = window
@@ -38,11 +41,14 @@ export class LogFile {
         let result: boolean = false;
         let times = lineInd.map(stringLine => {
             return stringLine.getLineHour();
+            // return 5;
         })
         let currentTime = times[0],
             previousTime = times[1]
-        if (currentTime < (previousTime + .5)) {
-            result = true;
+        if (currentTime < previousTime) {
+            if (previousTime - currentTime > .5) {
+                result = true;
+            }
         }
         return result;
     }
@@ -50,6 +56,7 @@ export class LogFile {
         let result: boolean = false;
         let times = lineInd.map(stringLine => {
             return stringLine.getLineHour();
+            // return 6;
         })
         let currentTime = times[0],
             previousTime = times[1]

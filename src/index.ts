@@ -16,6 +16,8 @@ setInterval(() => {
         var days = new LogFile(config.filePath).days;
         days.forEach(day => {
             // db.UpsertDay(day);//not readty to send to databse yet
+            // console.log("Tried to Upcert");
+            // console.log(`${day.getDate()} solidworks ${day.getHighMark('solidworks')}`);
         })
     } else {
         console.log(`${processing} ...\n\tDelaying next process for ${config.delaySeconds} seconds`);
