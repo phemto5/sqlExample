@@ -72,6 +72,8 @@
 
 	"use strict";
 	var Day_1 = __webpack_require__(2);
+	var StringLine_1 = __webpack_require__(6);
+	var TwoDayWindow_1 = __webpack_require__(7);
 	var fs = __webpack_require__(4);
 	var LogFile = (function () {
 	    function LogFile(sourcePath) {
@@ -83,9 +85,9 @@
 	        var days;
 	        var fileString = fs.readFileSync(filePath, 'utf-8');
 	        var lineArray = fileString.split(/\n\r/g).map(function (str) {
-	            return new StringLine(str);
+	            return new StringLine_1.StringLine(str);
 	        });
-	        var window = new TwoDayWindow(new Day_1.Day());
+	        var window = new TwoDayWindow_1.TwoDayWindow(new Day_1.Day());
 	        lineArray.forEach(function (line, ind, arr) {
 	            var lineWindow = [line, arr[ind - 1]];
 	            if (LogFile.isNewDay(lineWindow)) {
@@ -128,51 +130,6 @@
 	    return LogFile;
 	}());
 	exports.LogFile = LogFile;
-	var StringLine = (function () {
-	    function StringLine(str) {
-	        this._string = '';
-	        this.lineString = str;
-	    }
-	    Object.defineProperty(StringLine.prototype, "lineString", {
-	        get: function () {
-	            return this._string;
-	        },
-	        set: function (str) {
-	            this._string = str;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    StringLine.prototype.getLineHour = function () {
-	        var timeStringArray = this._string.substr(0, 8).split(':');
-	        var timeNumbersArray = timeStringArray.map(function (segment) { return parseInt(segment, 10); });
-	        var hours = timeNumbersArray[0] + (timeNumbersArray[1] / 60) + (timeNumbersArray[2] / 60 / 60);
-	        return hours;
-	    };
-	    return StringLine;
-	}());
-	exports.StringLine = StringLine;
-	var TwoDayWindow = (function () {
-	    function TwoDayWindow(day, prev) {
-	        this.current = day;
-	        if (prev) {
-	            this.previous = prev;
-	        }
-	    }
-	    TwoDayWindow.prototype.nextDay = function (day) {
-	        this.allDays.push(this.previous);
-	        this.previous = this.current;
-	        this.current = day;
-	        return this;
-	    };
-	    TwoDayWindow.prototype.finishWindow = function () {
-	        this.allDays.push(this.previous);
-	        this.allDays.push(this.current);
-	        return this;
-	    };
-	    return TwoDayWindow;
-	}());
-	exports.TwoDayWindow = TwoDayWindow;
 
 
 /***/ },
@@ -248,6 +205,65 @@
 		"filePath": "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log",
 		"delaySeconds": 30
 	};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var StringLine = (function () {
+	    function StringLine(str) {
+	        this._string = '';
+	        this.lineString = str;
+	    }
+	    Object.defineProperty(StringLine.prototype, "lineString", {
+	        get: function () {
+	            return this._string;
+	        },
+	        set: function (str) {
+	            this._string = str;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    StringLine.prototype.getLineHour = function () {
+	        var timeStringArray = this._string.substr(0, 8).split(':');
+	        var timeNumbersArray = timeStringArray.map(function (segment) { return parseInt(segment, 10); });
+	        var hours = timeNumbersArray[0] + (timeNumbersArray[1] / 60) + (timeNumbersArray[2] / 60 / 60);
+	        return hours;
+	    };
+	    return StringLine;
+	}());
+	exports.StringLine = StringLine;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var TwoDayWindow = (function () {
+	    function TwoDayWindow(day, prev) {
+	        this.current = day;
+	        if (prev) {
+	            this.previous = prev;
+	        }
+	    }
+	    TwoDayWindow.prototype.nextDay = function (day) {
+	        this.allDays.push(this.previous);
+	        this.previous = this.current;
+	        this.current = day;
+	        return this;
+	    };
+	    TwoDayWindow.prototype.finishWindow = function () {
+	        this.allDays.push(this.previous);
+	        this.allDays.push(this.current);
+	        return this;
+	    };
+	    return TwoDayWindow;
+	}());
+	exports.TwoDayWindow = TwoDayWindow;
+
 
 /***/ }
 /******/ ]);
