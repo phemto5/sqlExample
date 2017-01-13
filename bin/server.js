@@ -82,17 +82,76 @@
 	    LogFile.prototype.consumeFile = function (filePath) {
 	        var days;
 	        var fileString = fs.readFileSync(filePath, 'utf-8');
-	        var lineArray = fileString.split(/\n\r/g);
+	        var lineArray = fileString.split(/\n\r/g).map(function (str) {
+	            return new StringLine(str);
+	        });
 	        var window = new TwoDayWindow(new Day_1.Day());
-	        lineArray.forEach(function (str) {
-	            if (parseInt(str.substr(0, 2), 10) > 10) {
+	        lineArray.forEach(function (line, ind, arr) {
+	            var lineWindow = [line, arr[ind - 1]];
+	            if (LogFile.isNewDay(lineWindow)) {
+	                window.nextDay(new Day_1.Day());
+	            }
+	            if (LogFile.isPreviousDay(lineWindow)) {
+	                window.previous.addLine(line.lineString);
+	            }
+	            else {
+	                window.current.addLine(line.lineString);
 	            }
 	        });
+	        days = window
+	            .finishWindow()
+	            .allDays;
 	        return days;
+	    };
+	    LogFile.isNewDay = function (lineInd) {
+	        var result = false;
+	        var times = lineInd.map(function (stringLine) {
+	            return stringLine.getLineHour();
+	        });
+	        var currentTime = times[0], previousTime = times[1];
+	        if (currentTime < (previousTime + .5)) {
+	            result = true;
+	        }
+	        return result;
+	    };
+	    LogFile.isPreviousDay = function (lineInd) {
+	        var result = false;
+	        var times = lineInd.map(function (stringLine) {
+	            return stringLine.getLineHour();
+	        });
+	        var currentTime = times[0], previousTime = times[1];
+	        if (currentTime > (previousTime + 12)) {
+	            result = true;
+	        }
+	        return result;
 	    };
 	    return LogFile;
 	}());
 	exports.LogFile = LogFile;
+	var StringLine = (function () {
+	    function StringLine(str) {
+	        this._string = '';
+	        this.lineString = str;
+	    }
+	    Object.defineProperty(StringLine.prototype, "lineString", {
+	        get: function () {
+	            return this._string;
+	        },
+	        set: function (str) {
+	            this._string = str;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    StringLine.prototype.getLineHour = function () {
+	        var timeStringArray = this._string.substr(0, 8).split(':');
+	        var timeNumbersArray = timeStringArray.map(function (segment) { return parseInt(segment, 10); });
+	        var hours = timeNumbersArray[0] + (timeNumbersArray[1] / 60) + (timeNumbersArray[2] / 60 / 60);
+	        return hours;
+	    };
+	    return StringLine;
+	}());
+	exports.StringLine = StringLine;
 	var TwoDayWindow = (function () {
 	    function TwoDayWindow(day, prev) {
 	        this.current = day;
@@ -101,8 +160,15 @@
 	        }
 	    }
 	    TwoDayWindow.prototype.nextDay = function (day) {
+	        this.allDays.push(this.previous);
 	        this.previous = this.current;
 	        this.current = day;
+	        return this;
+	    };
+	    TwoDayWindow.prototype.finishWindow = function () {
+	        this.allDays.push(this.previous);
+	        this.allDays.push(this.current);
+	        return this;
 	    };
 	    return TwoDayWindow;
 	}());
