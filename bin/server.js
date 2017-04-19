@@ -1,2 +1,283 @@
-!function(t){function n(r){if(i[r])return i[r].exports;var e=i[r]={exports:{},id:r,loaded:!1};return t[r].call(e.exports,e,e.exports,n),e.loaded=!0,e.exports}var i={};return n.m=t,n.c=i,n.p="",n(0)}([function(t,n,i){"use strict";var r=i(4),e=i(1),o=!1;setInterval(function(){if(!o){var t=new r.LogFile(e.filePath).days;t.forEach(function(t){})}},1e3*e.delaySeconds)},function(t,n){t.exports={filePath:"\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log",delaySeconds:1}},function(t,n){t.exports={products:["swofficepremium","draftsightpremium","solidworks","swepdm_cadeditorandweb","swepdm_processor","swinspection_std","swofficepro"]}},function(t,n,i){"use strict";var r=function(){function t(){this.products=i(2).products,this.lines=[]}return t.prototype.getHighMark=function(t){var n=0,i=0,r=new RegExp(t,"g");return this.lines.forEach(function(t){t.match(r)&&(t.match(/IN:/gi)&&i++,t.match(/OUT:/gi)&&i--),i>n&&(n=i),i<0&&(i=0)}),n},t.prototype.getDate=function(){var t;return this.lines.forEach(function(n){n.match(/TIMESTAMP/gi)&&(t=n.split(" ").pop())}),new Date(t)},t.prototype.addLine=function(t){t&&this.lines.push(t)},t}();n.Day=r},function(t,n,i){"use strict";var r=i(3),e=i(5),o=i(6),s=i(7),u=function(){function t(t){this.logPath=t,this.days=this.consumeFile(this.logPath)}return t.prototype.consumeFile=function(n){var i,u=s.readFileSync(n,"utf-8"),a=u.split(/\r\n/g).map(function(t){return new e.StringLine(t)}),c=new o.TwoDayWindow(new r.Day);return a.forEach(function(n,i,e){if(0===i)c.current.addLine(n.lineString);else{var o=[n,e[i-1]];t.isNewDay(o)&&c.nextDay(new r.Day),t.isPreviousDay(o)?c.previous.addLine(n.lineString):c.current.addLine(n.lineString)}}),i=c.finishWindow().allDays},t.isNewDay=function(t){var n=!1,i=t.map(function(t){return t.getLineHour()}),r=i[0],e=i[1];return r<e&&e-r>.5&&(n=!0),n},t.isPreviousDay=function(t){var n=!1,i=t.map(function(t){return t.getLineHour()}),r=i[0],e=i[1];return r>e+12&&(n=!0),n},t}();n.LogFile=u},function(t,n){"use strict";var i=function(){function t(t){this._string="",this.lineString=t}return Object.defineProperty(t.prototype,"lineString",{get:function(){return this._string},set:function(t){this._string=t},enumerable:!0,configurable:!0}),t.prototype.getLineHour=function(){var t=this._string.substr(0,8).split(":"),n=t.map(function(t){return parseInt(t,10)}),i=n[0]+n[1]/60+n[2]/60/60;return i},t}();n.StringLine=i},function(t,n){"use strict";var i=function(){function t(t,n){this.allDays=[],this.current=t,n&&(this.previous=n)}return t.prototype.nextDay=function(t){return this.previous&&this.allDays.push(this.previous),this.previous=this.current,this.current=t,this},t.prototype.finishWindow=function(){return this.previous&&this.allDays.push(this.previous),this.allDays.push(this.current),this},t}();n.TwoDayWindow=i},function(t,n){t.exports=require("fs")}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var LogFile_1 = __webpack_require__(1);
+	var config = __webpack_require__(7);
+	var processing = false;
+	setInterval(function () {
+	    if (!processing) {
+	        var days = new LogFile_1.LogFile(config.filePath).days;
+	        days.forEach(function (day) {
+	        });
+	    }
+	    else {
+	    }
+	}, 1000 * config.delaySeconds);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var Day_1 = __webpack_require__(2);
+	var StringLine_1 = __webpack_require__(4);
+	var TwoDayWindow_1 = __webpack_require__(5);
+	var fs = __webpack_require__(6);
+	var LogFile = (function () {
+	    function LogFile(sourcePath) {
+	        this.logPath = sourcePath;
+	        this.days = this.consumeFile(this.logPath);
+	    }
+	    ;
+	    LogFile.prototype.consumeFile = function (filePath) {
+	        var days;
+	        var fileString = fs.readFileSync(filePath, 'utf-8');
+	        var lineArray = fileString.split(/\r\n/g).map(function (str) {
+	            return new StringLine_1.StringLine(str);
+	        });
+	        var window = new TwoDayWindow_1.TwoDayWindow(new Day_1.Day());
+	        lineArray.forEach(function (line, ind, arr) {
+	            if (ind === 0) {
+	                window.current.addLine(line.lineString);
+	            }
+	            else {
+	                var lineWindow = [line, arr[ind - 1]];
+	                if (LogFile.isNewDay(lineWindow)) {
+	                    window.nextDay(new Day_1.Day());
+	                }
+	                if (LogFile.isPreviousDay(lineWindow)) {
+	                    window.previous.addLine(line.lineString);
+	                }
+	                else {
+	                    window.current.addLine(line.lineString);
+	                }
+	            }
+	        });
+	        days = window
+	            .finishWindow()
+	            .allDays;
+	        return days;
+	    };
+	    LogFile.isNewDay = function (lineInd) {
+	        var result = false;
+	        var times = lineInd.map(function (stringLine) {
+	            return stringLine.getLineHour();
+	        });
+	        var currentTime = times[0], previousTime = times[1];
+	        if (currentTime < previousTime) {
+	            if (previousTime - currentTime > .5) {
+	                result = true;
+	            }
+	        }
+	        return result;
+	    };
+	    LogFile.isPreviousDay = function (lineInd) {
+	        var result = false;
+	        var times = lineInd.map(function (stringLine) {
+	            return stringLine.getLineHour();
+	        });
+	        var currentTime = times[0], previousTime = times[1];
+	        if (currentTime > (previousTime + 12)) {
+	            result = true;
+	        }
+	        return result;
+	    };
+	    return LogFile;
+	}());
+	exports.LogFile = LogFile;
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var Day = (function () {
+	    function Day() {
+	        this.products = __webpack_require__(3).products;
+	        this.lines = [];
+	    }
+	    Day.prototype.getHighMark = function (product) {
+	        var highwater = 0;
+	        var current = 0;
+	        var prodExp = new RegExp(product, 'g');
+	        this.lines.forEach(function (line) {
+	            if (line.match(prodExp)) {
+	                if (line.match(/IN:/gi)) {
+	                    current++;
+	                }
+	                if (line.match(/OUT:/gi)) {
+	                    current--;
+	                }
+	            }
+	            if (current > highwater) {
+	                highwater = current;
+	            }
+	            if (current < 0) {
+	                current = 0;
+	            }
+	        });
+	        return highwater;
+	    };
+	    Day.prototype.getDate = function () {
+	        var dateString;
+	        this.lines.forEach(function (line) {
+	            if (line.match(/TIMESTAMP/gi)) {
+	                dateString = line.split(" ").pop();
+	            }
+	        });
+	        return new Date(dateString);
+	    };
+	    Day.prototype.addLine = function (string) {
+	        if (string) {
+	            this.lines.push(string);
+	        }
+	    };
+	    return Day;
+	}());
+	exports.Day = Day;
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"products": [
+			"swofficepremium",
+			"draftsightpremium",
+			"solidworks",
+			"swepdm_cadeditorandweb",
+			"swepdm_processor",
+			"swinspection_std",
+			"swofficepro"
+		]
+	};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var StringLine = (function () {
+	    function StringLine(str) {
+	        this._string = '';
+	        this.lineString = str;
+	    }
+	    Object.defineProperty(StringLine.prototype, "lineString", {
+	        get: function () {
+	            return this._string;
+	        },
+	        set: function (str) {
+	            this._string = str;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    StringLine.prototype.getLineHour = function () {
+	        var timeStringArray = this._string.substr(0, 8).split(':');
+	        var timeNumbersArray = timeStringArray.map(function (segment) { return parseInt(segment, 10); });
+	        var hours = timeNumbersArray[0] + (timeNumbersArray[1] / 60) + (timeNumbersArray[2] / 60 / 60);
+	        return hours;
+	    };
+	    return StringLine;
+	}());
+	exports.StringLine = StringLine;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var TwoDayWindow = (function () {
+	    function TwoDayWindow(day, prev) {
+	        this.allDays = [];
+	        this.current = day;
+	        if (prev) {
+	            this.previous = prev;
+	        }
+	    }
+	    TwoDayWindow.prototype.nextDay = function (day) {
+	        if (this.previous) {
+	            this.allDays.push(this.previous);
+	        }
+	        this.previous = this.current;
+	        this.current = day;
+	        return this;
+	    };
+	    TwoDayWindow.prototype.finishWindow = function () {
+	        if (this.previous) {
+	            this.allDays.push(this.previous);
+	        }
+	        this.allDays.push(this.current);
+	        return this;
+	    };
+	    return TwoDayWindow;
+	}());
+	exports.TwoDayWindow = TwoDayWindow;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	module.exports = require("fs");
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"filePath": "\\\\wsepdm\\c$\\Program Files (x86)\\SolidWorks Corp\\SolidNetWork License Manager\\lmgrd.log",
+		"delaySeconds": 1
+	};
+
+/***/ }
+/******/ ]);
 //# sourceMappingURL=server.js.map
