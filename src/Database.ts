@@ -3,8 +3,8 @@ import { Day } from './Day';
 
 export function UpsertDay(day: Day) {
     let sqlServerConfig = {
-        user: 'readwrite',
-        password: 'readwrite',
+        user: '<USERNAME>',
+        password: '<PASSWORD>',
         server: 'sqldb1.wagstaff.com\\WAGENG',
         database: 'WagEngineering'
     }
